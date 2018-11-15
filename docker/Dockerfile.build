@@ -1,0 +1,24 @@
+FROM alpine:3.8
+
+ARG username
+ARG fullname
+ARG email
+
+RUN apk add alpine-sdk && \
+    adduser -D "${username}" && \
+    addgroup "${username}" abuild && \
+    echo "PACKAGER='${fullname} <${email}>'" >> /etc/abuild.conf && \
+    echo 'MAINTAINER="$PACKAGER"' >> /etc/abuild.conf" && \
+    echo "${username} ALL=(ALL) ALL" > /etc/sudoers.d/abuild && \
+    mkdir -p /var/cache/distfiles && \
+    chgrp abuild /var/cache/distfiles && \
+    chmod g+w /var/cache/distfiles && \
+    mkdir "/home/${username}/.abuild" && \
+    sudo -u "${username}" git config --global user.name "${fullname}" && \
+    sudo -u "${username}" git config --global user.email "${email}"
+
+COPY "${email}.rsa.pub" /etc/apk/keys
+COPY "${email}.rsa" "/home/${username}/.abuild/"
+COPY abuild.conf "/home/${username}/.abuild/"
+
+RUN chown -R "${username}" "/home/${username}"
