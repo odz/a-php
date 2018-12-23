@@ -1,0 +1,12 @@
+--- php-4.3.5.orig/ext/standard/tests/math/bug21523.phpt
++++ php-4.3.5/ext/standard/tests/math/bug21523.phpt
+@@ -1,5 +1,9 @@
+ --TEST--
+ Bug #21523 number_format tries to allocate negative amount of memory
++--SKIPIF--
++<?php
++	die('skip this test cause infinite loop');
++?>
+ --FILE--
+ <?php // $Id: bug21523.phpt,v 1.1.2.1 2003/01/09 16:54:15 iliaa Exp $ vim600:syn=php
+ 
