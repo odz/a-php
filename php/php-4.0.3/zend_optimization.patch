@@ -1,0 +1,11 @@
+--- php-4.0.0.orig/Zend/Zend.m4
++++ php-4.0.0/Zend/Zend.m4
+@@ -165,7 +165,7 @@
+ 
+ changequote({,})
+ if test -n "$GCC" && test "$ZEND_INLINE_OPTIMIZATION" != "yes"; then
+-  INLINE_CFLAGS=`echo $ac_n "$CFLAGS $ac_c" | sed s/-O[0-9]*//`
++  INLINE_CFLAGS=`echo $ac_n "$CFLAGS $ac_c" | sed s/-O[s0-9]*//`
+ else
+   INLINE_CFLAGS="$CFLAGS"
+ fi
