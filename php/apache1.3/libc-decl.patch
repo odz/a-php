@@ -1,0 +1,20 @@
+diff -ru apache_1.3.42.orig/src/include/ap_config.h apache_1.3.42/src/include/ap_config.h
+--- apache_1.3.42.orig/src/include/ap_config.h	2006-07-12 08:16:05.000000000 +0000
++++ apache_1.3.42/src/include/ap_config.h	2018-10-22 14:35:20.677474000 +0000
+@@ -469,8 +469,6 @@
+ #define USE_FCNTL_SERIALIZED_ACCEPT
+ #endif
+ 
+-#define SYS_SIGLIST	_sys_siglist
+-
+ #else
+ #define USE_FCNTL_SERIALIZED_ACCEPT
+ #endif
+@@ -484,7 +482,6 @@
+ 
+ /* glibc 2.1 and later finally define rlim_t */
+ #if !defined(__GLIBC__) || __GLIBC__ < 2 || (__GLIBC__ == 2 && __GLIBC_MINOR__ < 1)
+-typedef int rlim_t;
+ #endif
+ #define AP_ENABLE_EXCEPTION_HOOK
+ 

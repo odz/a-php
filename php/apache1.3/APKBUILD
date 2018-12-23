@@ -1,0 +1,67 @@
+# Contributor: Akira Oda <oda.org@gmail.com>
+# Maintainer:
+pkgname=apache1.3
+pkgver=1.3.42
+pkgrel=0
+pkgdesc="A high performance Unix-based HTTP server"
+url="http://httpd.apache.org/"
+arch="all"
+license="Apache-2.0"
+depends="perl"
+makedepends="perl"
+install=""
+subpackages="$pkgname-dev $pkgname-doc"
+source="http://archive.apache.org/dist/httpd/apache_$pkgver.tar.bz2
+        alpine.layout
+	apxs-array-base.patch
+	busybox_sed.patch
+	conf-include.patch
+	getline.patch
+	libc-decl.patch
+	no-setsid.patch
+"
+builddir="$srcdir/apache_$pkgver"
+
+prepare() {
+        default_prepare || return 1
+        cat "$srcdir/alpine.layout" >> config.layout
+}
+
+build() {
+	cd "$builddir"
+        env CFLAGS="$CFLAGS -fgnu89-inline" ./configure \
+                --target=apache \
+                --with-layout=Alpine \
+                --with-port=80 \
+                --enable-module=so \
+          || return 1
+        make -j1 || return 1
+}
+
+package() {
+	cd "$builddir"
+        make -j1 root="$pkgdir" install || return 1
+        install -d "$pkgdir/etc/apache/conf.d"
+}
+
+dev() {
+        default_dev
+
+        depends="perl apache1.3=$pkgver-r$pkgrel"
+
+        install -d "$subpkgdir/usr/bin"
+        mv "$pkgdir/usr/bin/apxs" "$subpkgdir/usr/bin/apxs" || return 1
+}
+
+doc() {
+        default_doc
+}
+
+sha512sums="2cb0f2f2e9d542bb37c762957a8563ed24704ca38498a8070caf788fac41650e66156c909d6d43a6e134eaf3c4afb1f5e3a65934b53e19f89cb405b6448c5460  apache_1.3.42.tar.bz2
+4de5429b47c10a04a49ed148d595f5c9d6d86f82621104f90bd9686eb49e04d8fbd1125824a271be4405672c8919f062aa72c47e2fbeabec1c275d5ec34c3dd6  alpine.layout
+b75fd73a58975306482989c873580f7e3c15fa7b0603872332f135c8b1b3c5545edd8c81b094c112c074b0f5ef88306493ea2a7a5fd6e3dd759bd78bee465c31  apxs-array-base.patch
+3c4f1d989a8b2616c4b3b2b34037ee75d0757cd2889da6e943e48b528756aa79770896149ddf675e37c140daa0be10d7610cb33a9d048504f03220f3c69b6935  busybox_sed.patch
+417d355fc4f48bcccfa1115dcb418632c8b537e0dd7867ad754d33502c052cb45dc395b518bf7092d489ad00a5f73c8f373ac733f172a55b55f9040d58aef3c5  conf-include.patch
+cc882451b22758492a533b01a8eb4f5f36b9f367b3b7b52c4dcefad40fd75c782155c6ed5bed5196a4dd3fb82248a328b945696c1c16c08e63e829bcc04ed207  getline.patch
+cbd958a6a5626ff70f6cdbe47e961206cb6921c06c4cd3b81a678f3d0553934182ab801d64265c89dfa5afdce3f3e5420ecce7e0ef795a70c3e2a540f566b827  libc-decl.patch
+f76633bc12ad92e2e268008b49dc5b9d498b4a912f33179fc92ccb794e82bb1086d090ce3055ae6356ede7aad371a63736a3440b01ce038dc765d259a62ce745  no-setsid.patch"

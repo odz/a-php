@@ -1,0 +1,19 @@
+--- apache_1.3.42.orig/src/support/apxs.pl
++++ apache_1.3.42/src/support/apxs.pl
+@@ -83,7 +83,6 @@
+     my (@args, $first, $rest, $pos);
+     my ($errs) = 0;
+     local ($_);
+-    local ($[) = 0;
+ 
+     @args = split( / */, $argumentative);
+     while(@ARGV && ($_ = $ARGV[0]) =~ /^-(.)(.*)/) {
+@@ -93,7 +92,7 @@
+             last;
+         }
+         $pos = index($argumentative,$first);
+-        if ($pos >= $[) {
++        if ($pos >= 0) {
+             if ($args[$pos+1] eq ':') {
+                 shift(@ARGV);
+                 if ($rest eq '') {

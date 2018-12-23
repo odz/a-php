@@ -1,0 +1,12 @@
+diff -ru apache_1.3.42.orig/configure apache_1.3.42/configure
+--- apache_1.3.42.orig/configure	2010-01-06 16:49:45.000000000 +0000
++++ apache_1.3.42/configure	2018-10-22 14:18:47.349274000 +0000
+@@ -469,7 +469,7 @@
+                 eval "val=\"\$$var\""
+                 case $val in
+                     *+ )
+-                        val=`echo $val | sed -e 's;\+$;;'`
++                        val=`echo $val | sed -e 's;+$;;'`
+                         eval "$var=\"\$val\""
+                         eval "autosuffix_$var=yes"
+                         ;;

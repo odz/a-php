@@ -1,0 +1,10 @@
+diff -ru apache_1.3.42.orig/conf/httpd.conf-dist apache_1.3.42/conf/httpd.conf-dist
+--- apache_1.3.42.orig/conf/httpd.conf-dist	2004-11-24 19:10:19.000000000 +0000
++++ apache_1.3.42/conf/httpd.conf-dist	2018-10-22 14:04:22.455349000 +0000
+@@ -938,3 +938,6 @@
+ #    ErrorLog logs/dummy-host.example.com-error_log
+ #    CustomLog logs/dummy-host.example.com-access_log common
+ #</VirtualHost>
++
++# Load config files from config directory "/etc/apache/conf.d"
++Include /etc/apache/conf.d/*.conf

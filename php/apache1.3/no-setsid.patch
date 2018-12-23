@@ -1,0 +1,26 @@
+diff -rup apache_1.3.42.orig/src/main/http_main.c apache_1.3.42/src/main/http_main.c
+--- apache_1.3.42.orig/src/main/http_main.c	2007-11-15 21:31:15.000000000 +0000
++++ apache_1.3.42/src/main/http_main.c	2018-12-23 04:22:26.780722000 +0000
+@@ -3543,13 +3543,15 @@ static void detach(void)
+     }
+ #endif
+ #ifndef NO_SETSID
+-    if ((pgrp = setsid()) == -1) {
+-	perror("setsid");
+-	fprintf(stderr, "%s: setsid failed\n", ap_server_argv0);
+-	if (!do_detach) 
+-	    fprintf(stderr, "setsid() failed probably because you aren't "
+-		"running under a process management tool like daemontools\n");
+-	exit(1);
++    if (do_detach) {
++	if ((pgrp = setsid()) == -1) {
++	    perror("setsid");
++	    fprintf(stderr, "%s: setsid failed\n", ap_server_argv0);
++	    if (!do_detach) 
++		fprintf(stderr, "setsid() failed probably because you aren't "
++		    "running under a process management tool like daemontools\n");
++	    exit(1);
++	}
+     }
+ #elif defined(NEXT) || defined(NEWSOS)
+     if (setpgrp(0, getpid()) == -1 || (pgrp = getpgrp(0)) == -1) {
