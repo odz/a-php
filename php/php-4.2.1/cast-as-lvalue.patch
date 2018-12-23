@@ -1,0 +1,11 @@
+--- php-4.2.1.orig/ext/domxml/php_domxml.c
++++ php-4.2.1/ext/domxml/php_domxml.c
+@@ -2670,7 +2670,7 @@
+ 
+ 	ids = (xmlHashTable *) docp->ids;
+ 	if(ids) {
+-		iter.elementId = (xmlChar *) 
++		iter.elementId = NULL;
+ 		iter.element = NULL;
+ 		xmlHashScan(ids, idsHashScanner, &iter);
+ 		rv = php_domobject_new(iter.element, &retnode TSRMLS_CC);
