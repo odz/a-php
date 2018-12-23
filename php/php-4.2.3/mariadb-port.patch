@@ -1,0 +1,13 @@
+--- php-4.1.0.orig/ext/mysql/php_mysql.c
++++ php-4.1.0/ext/mysql/php_mysql.c
+@@ -106,6 +106,10 @@
+ 	(mysql_field_count(mysql)>0)
+ #endif
+ 
++#if !defined(MYSQL_PORT) && defined(MARIADB_PORT)
++#define MYSQL_PORT		MARIADB_PORT
++#endif
++
+ typedef struct _php_mysql_conn {
+ 	MYSQL conn;
+ 	int active_result_id;
