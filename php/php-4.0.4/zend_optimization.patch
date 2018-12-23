@@ -1,0 +1,24 @@
+--- php-4.0.1.orig/Zend/Zend.m4
++++ php-4.0.1/Zend/Zend.m4
+@@ -183,7 +183,7 @@
+ 
+ changequote({,})
+ if test -n "$GCC" && test "$ZEND_INLINE_OPTIMIZATION" != "yes"; then
+-  INLINE_CFLAGS=`echo $ac_n "$CFLAGS $ac_c" | sed s/-O[0-9]*//`
++  INLINE_CFLAGS=`echo $ac_n "$CFLAGS $ac_c" | sed s/-O[s0-9]*//`
+ else
+   INLINE_CFLAGS="$CFLAGS"
+ fi
+Only in php-4.0.1: Zend/Zend.m4.orig
+--- php-4.0.1.orig/configure
++++ php-4.0.1/configure
+@@ -39995,7 +39995,7 @@
+ 
+ 
+ if test -n "$GCC" && test "$ZEND_INLINE_OPTIMIZATION" != "yes"; then
+-  INLINE_CFLAGS=`echo $ac_n "$CFLAGS $ac_c" | sed s/-O[0-9]*//`
++  INLINE_CFLAGS=`echo $ac_n "$CFLAGS $ac_c" | sed s/-O[s0-9]*//`
+ else
+   INLINE_CFLAGS="$CFLAGS"
+ fi
+Only in php-4.0.1: configure.orig
