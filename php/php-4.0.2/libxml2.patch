@@ -1,0 +1,46 @@
+--- php-4.0.2.orig/ext/domxml/config.m4
++++ php-4.0.2/ext/domxml/config.m4
+@@ -14,15 +14,15 @@
+       PHP_EXTENSION(domxml)
+       old_LIBS=$LIBS
+       LIBS="$LIBS -lz"
+-      AC_CHECK_LIB(xml, xmlNewDoc, [AC_DEFINE(HAVE_DOMXML,1,[ ])],
++      AC_CHECK_LIB(xml2, xmlNewDoc, [AC_DEFINE(HAVE_DOMXML,1,[ ])],
+         [AC_MSG_ERROR(DOM module requires libxml >= 2.0)])
+       LIBS=$old_LIBS
+       AC_ADD_LIBRARY(z)
+-      AC_ADD_LIBRARY(xml)
++      AC_ADD_LIBRARY(xml2)
+       AC_ADD_INCLUDE(/usr/local/include)
+       ;;
+     *)
+-      test -f $withval/include/libxml/tree.h && DOMXML_INCLUDE="$withval/include"
++      test -f $withval/include/libxml2/libxml/tree.h && DOMXML_INCLUDE="$withval/include/libxml2"
+       if test -n "$DOMXML_INCLUDE" ; then
+         AC_MSG_RESULT(yes)
+         PHP_EXTENSION(domxml)
+@@ -51,10 +51,10 @@
+           LIBS="$LIBS -L$withval/lib -lz"
+         fi
+ 
+-        AC_CHECK_LIB(xml, xmlNewDoc, [AC_DEFINE(HAVE_DOMXML,1,[ ])],
++        AC_CHECK_LIB(xml2, xmlNewDoc, [AC_DEFINE(HAVE_DOMXML,1,[ ])],
+           [AC_MSG_ERROR(DOM module requires libxml >= 2.0.)])
+         LIBS=$old_LIBS
+-        AC_ADD_LIBRARY_WITH_PATH(xml, $withval/lib)
++        AC_ADD_LIBRARY_WITH_PATH(xml2, $withval/lib)
+         AC_ADD_INCLUDE($DOMXML_INCLUDE)
+       else
+         AC_MSG_RESULT(no)
+--- php-4.0.2.orig/ext/domxml/php_domxml.c
++++ php-4.0.2/ext/domxml/php_domxml.c
+@@ -159,7 +159,9 @@
+ 	REGISTER_LONG_CONSTANT("XML_DOCUMENT_TYPE_NODE", XML_DOCUMENT_TYPE_NODE, CONST_CS | CONST_PERSISTENT);
+ 	REGISTER_LONG_CONSTANT("XML_DOCUMENT_FRAG_NODE", XML_DOCUMENT_FRAG_NODE, CONST_CS | CONST_PERSISTENT);
+ 	REGISTER_LONG_CONSTANT("XML_NOTATION_NODE", XML_NOTATION_NODE, CONST_CS | CONST_PERSISTENT);
++#if 0
+ 	REGISTER_LONG_CONSTANT("XML_GLOBAL_NAMESPACE", XML_GLOBAL_NAMESPACE, CONST_CS | CONST_PERSISTENT);
++#endif
+ 	REGISTER_LONG_CONSTANT("XML_LOCAL_NAMESPACE", XML_LOCAL_NAMESPACE, CONST_CS | CONST_PERSISTENT);
+ 	return SUCCESS;
+ }
