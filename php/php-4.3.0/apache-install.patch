@@ -1,0 +1,11 @@
+--- php-4.3.0.orig/sapi/apache/config.m4
++++ php-4.3.0/sapi/apache/config.m4
+@@ -69,7 +69,7 @@
+   if test "$?" != "0"; then
+     APACHE_INSTALL="$APXS -i -a -n php4 $SAPI_SHARED" # Old apxs does not have -S option
+   else 
+-    APACHE_INSTALL="\$(mkinstalldirs) \"\$(INSTALL_ROOT)`$APXS -q LIBEXECDIR`\" && $APXS -S LIBEXECDIR=\"\$(INSTALL_ROOT)`$APXS -q LIBEXECDIR`\" -i -a -n php4 $SAPI_SHARED"
++    APACHE_INSTALL="\$(mkinstalldirs) \"\$(INSTALL_ROOT)`$APXS -q LIBEXECDIR`\" && $APXS -S LIBEXECDIR=\"\$(INSTALL_ROOT)`$APXS -q LIBEXECDIR`\" -i -n php4 $SAPI_SHARED"
+   fi
+ 
+   if test -z "`$APXS -q LD_SHLIB`" || test "`$APXS -q LIBEXECDIR`" = "modules"; then
