@@ -1,0 +1,119 @@
+--- php-4.0.0.orig/Makefile.in
++++ php-4.0.0/Makefile.in
+@@ -1,4 +1,5 @@
+ 
++DESTDIR = 
+ ZEND_DIR = $(srcdir)/Zend
+ SUBDIRS = Zend ext sapi $(TSRM_DIR) $(REGEX_DIR) . $(PEAR_DIR)
+ 
+@@ -37,7 +38,7 @@
+ 
+ install-sapi:
+ 	@$(LIBTOOL) --silent --mode=install cp libphp4.la $(phptempdir)/libphp4.la >/dev/null 2>&1
+-	-@$(mkinstalldirs) $(bindir)
++	-@$(mkinstalldirs) $(DESTDIR)$(bindir)
+ 	-@if ! test -r $(phptempdir)/libphp4.$(SHLIB_SUFFIX_NAME); then \
+ 		for i in 0.0.0 0.0 0; do \
+ 			if test -r $(phptempdir)/libphp4.$(SHLIB_SUFFIX_NAME).$$i; then \
+@@ -50,10 +51,10 @@
+ 
+ install-modules:
+ 	@test -d modules && \
+-	$(mkinstalldirs) $(moduledir) && \
++	$(mkinstalldirs) $(DESTDIR)$(moduledir) && \
+ 	echo "installing shared modules into $(moduledir)" && \
+ 	rm -f modules/*.la && \
+-	cp modules/* $(moduledir) || true
++	cp modules/* $(DESTDIR)$(moduledir) || true
+ 
+ install-su: install-modules
+ 	(cd pear && $(MAKE) install)
+--- php-4.0.0.orig/pear/Makefile.in
++++ php-4.0.0/pear/Makefile.in
+@@ -21,13 +21,13 @@
+ 	File/Find.php
+ 
+ install-data-local:
+-	@if $(mkinstalldirs) $(peardir); then \
++	@if $(mkinstalldirs) $(DESTDIR)$(peardir); then \
+ 		for i in $(PEAR_SUBDIRS); do \
+-			$(mkinstalldirs) $(peardir)/$$i; \
++			$(mkinstalldirs) $(DESTDIR)$(peardir)/$$i; \
+ 		done; \
+ 		for i in $(PEAR_FILES); do \
+ 			dir=`echo $$i|sed 's%[^/][^/]*$$%%'`; \
+-			$(INSTALL_DATA) $(srcdir)/$$i $(peardir)/$$dir; \
++			$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(peardir)/$$dir; \
+ 		done; \
+ 	else \
+ 		cat $(srcdir)/install-pear.txt; \
+@@ -51,23 +51,23 @@
+ 	acinclude.m4
+ 
+ install-build:
+-	-@$(mkinstalldirs) $(builddir) $(bindir) && \
+-	(cd $(top_srcdir) && cp $(BUILD_FILES) $(builddir)) && \
++	-@$(mkinstalldirs) $(DESTDIR)$(builddir) $(DESTDIR)$(bindir) && \
++	(cd $(top_srcdir) && cp $(BUILD_FILES) $(DESTDIR)$(builddir)) && \
+ 	echo "creating phpize" && \
+ 	sed \
+ 		-e 's#@PREFIX@#$(prefix)#' \
+-		< $(srcdir)/phpize.in > $(bindir)/phpize.tmp && \
+-	chmod +x $(bindir)/phpize.tmp && \
+-	mv $(bindir)/phpize.tmp $(bindir)/phpize && \
++		< $(srcdir)/phpize.in > $(DESTDIR)$(bindir)/phpize.tmp && \
++	chmod +x $(DESTDIR)$(bindir)/phpize.tmp && \
++	mv $(DESTDIR)$(bindir)/phpize.tmp $(DESTDIR)$(bindir)/phpize && \
+ 	echo "creating php-config" && \
+ 	sed \
+ 		-e 's#@PREFIX@#$(prefix)#' \
+ 		-e 's#@PHPINCLUDEDIR@#$(phpincludedir)#g' \
+ 		-e 's#@EXTENSION_DIR@#$(EXTENSION_DIR)#g' \
+-		< $(srcdir)/php-config.in > $(bindir)/php-config.tmp && \
+-	chmod +x $(bindir)/php-config.tmp && \
+-	mv $(bindir)/php-config.tmp $(bindir)/php-config && \
+-	cp $(srcdir)/phpextdist $(bindir)/phpextdist
++		< $(srcdir)/php-config.in > $(DESTDIR)$(bindir)/php-config.tmp && \
++	chmod +x $(DESTDIR)$(bindir)/php-config.tmp && \
++	mv $(DESTDIR)$(bindir)/php-config.tmp $(DESTDIR)$(bindir)/php-config && \
++	cp $(srcdir)/phpextdist $(DESTDIR)$(bindir)/phpextdist
+ 
+ HEADER_DIRS = \
+ 	/ \
+@@ -78,11 +78,11 @@
+ 
+ install-headers:
+ 	-@for i in $(HEADER_DIRS); do \
+-		paths="$$paths $(phpincludedir)/$$i"; \
++		paths="$$paths $(DESTDIR)$(phpincludedir)/$$i"; \
+ 	done; \
+ 	$(mkinstalldirs) $$paths && \
+ 	echo "creating header file hierarchy" && \
+ 	for i in $(HEADER_DIRS); do \
+-		(cd $(top_srcdir)/$$i && cp -p *.h $(phpincludedir)/$$i; \
+-		cd $(top_builddir)/$$i && cp -p *.h $(phpincludedir)/$$i) 2>/dev/null || true; \
++		(cd $(top_srcdir)/$$i && cp -p *.h $(DESTDIR)$(phpincludedir)/$$i; \
++		cd $(top_builddir)/$$i && cp -p *.h $(DESTDIR)$(phpincludedir)/$$i) 2>/dev/null || true; \
+ 	done
+--- php-4.0.0.orig/sapi/apache/config.m4
++++ php-4.0.0/sapi/apache/config.m4
+@@ -37,7 +37,7 @@
+ 	   CPPFLAGS="$CPPFLAGS -DEAPI=1"
+ 	fi
+ 	PHP_SAPI=apache
+-	APACHE_INSTALL="$APXS -i -a -n php4 $SAPI_SHARED"
++	APACHE_INSTALL="mkdir -p \"\$(DESTDIR)/`$APXS -q LIBEXECDIR`\" && $APXS -S LIBEXECDIR=\"\$(DESTDIR)`$APXS -q LIBEXECDIR`\" -i -n php4 $SAPI_SHARED"
+ 	PHP_BUILD_SHARED
+ 	if test -z "`$APXS -q LD_SHLIB`" || test "`$APXS -q LIBEXECDIR`" = "modules"; then
+ 		PHP_APXS_BROKEN=yes
+--- php-4.0.0.orig/sapi/cgi/config.m4
++++ php-4.0.0/sapi/cgi/config.m4
+@@ -46,7 +46,7 @@
+ fi
+ 
+ if test "$PHP_SAPI" = "cgi" ; then
+-  INSTALL_IT="\$(INSTALL) -m 0755 $SAPI_PROGRAM \$(bindir)/$SAPI_CGI"
++  INSTALL_IT="\$(INSTALL) -m 0755 $SAPI_PROGRAM \$(DESTDIR)\$(bindir)/$SAPI_CGI"
+ fi
+ 
+ AC_MSG_CHECKING(for fhttpd module support)
