@@ -1,0 +1,35 @@
+--- php-4.0.5.orig/ext/domxml/config.m4
++++ php-4.0.5/ext/domxml/config.m4
+@@ -3,7 +3,7 @@
+ 
+ AC_DEFUN(PHP_DOM_CHECK_VERSION,[
+   old_CPPFLAGS=$CPPFLAGS
+-  CPPFLAGS="-I$DOMXML_DIR/include"
++  CPPFLAGS="-I$DOMXML_DIR/include/libxml2"
+   AC_MSG_CHECKING(for libxml version)
+   AC_EGREP_CPP(yes,[
+   #include <libxml/xmlversion.h>
+@@ -25,12 +25,12 @@
+ 
+ if test "$PHP_DOM" != "no"; then
+ 
+-  if test -r $PHP_DOM/include/libxml/tree.h; then
++  if test -r $PHP_DOM/include/libxml2/libxml/tree.h; then
+     DOMXML_DIR=$PHP_DOM
+   else
+     AC_MSG_CHECKING(for DOM in default path)
+     for i in /usr/local /usr; do
+-      if test -r $i/include/libxml/tree.h; then
++      if test -r $i/include/libxml2/libxml/tree.h; then
+         DOMXML_DIR=$i
+         AC_MSG_RESULT(found in $i)
+       fi
+@@ -44,7 +44,7 @@
+ 
+   PHP_DOM_CHECK_VERSION
+ 
+-  AC_ADD_INCLUDE($DOMXML_DIR/include)
++  AC_ADD_INCLUDE($DOMXML_DIR/include/libxml2)
+ 
+   if test -f $DOMXML_DIR/lib/libxml2.a -o -f $DOMXML_DIR/lib/libxml2.s? ; then
+     DOM_LIBNAME="xml2"

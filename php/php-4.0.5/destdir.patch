@@ -1,0 +1,106 @@
+--- php-4.0.5.orig/Makefile.in
++++ php-4.0.5/Makefile.in
+@@ -32,7 +32,7 @@
+ 
+ install-sapi:
+ 	@$(LIBTOOL) --silent --mode=install cp libphp4.la $(phptempdir)/libphp4.la >/dev/null 2>&1
+-	-@$(mkinstalldirs) $(bindir)
++	-@$(mkinstalldirs) $(DESTDIR)$(bindir)
+ 	-@if test ! -r $(phptempdir)/libphp4.$(SHLIB_SUFFIX_NAME); then \
+ 		for i in 0.0.0 0.0 0; do \
+ 			if test -r $(phptempdir)/libphp4.$(SHLIB_SUFFIX_NAME).$$i; then \
+@@ -45,10 +45,10 @@
+ 
+ install-modules:
+ 	@test -d modules && \
+-	$(mkinstalldirs) $(moduledir) && \
++	$(mkinstalldirs) $(DESTDIR)$(moduledir) && \
+ 	echo "installing shared modules into $(moduledir)" && \
+ 	rm -f modules/*.la && \
+-	cp modules/* $(moduledir) >/dev/null 2>&1 || true
++	cp modules/* $(DESTDIR)$(moduledir) >/dev/null 2>&1 || true
+ 
+ install-su: install-modules
+ 	(cd pear && $(MAKE) install)
+--- php-4.0.5.orig/pear/Makefile.in
++++ php-4.0.5/pear/Makefile.in
+@@ -94,16 +94,16 @@
+ 	XML/RPC.php
+ 
+ install-data-local: PEAR.php
+-	@if $(mkinstalldirs) $(peardir); then \
++	@if $(mkinstalldirs) $(DESTDIR)$(peardir); then \
+ 		for i in $(PEAR_SUBDIRS); do \
+-			(set -x;$(mkinstalldirs) $(peardir)/$$i); \
++			(set -x;$(mkinstalldirs) $(DESTDIR)$(peardir)/$$i); \
+ 		done; \
+ 		for i in $(PEAR_FILES); do \
+ 			dir=`echo $$i|sed 's%[^/][^/]*$$%%'`; \
+-			(set -x;$(INSTALL_DATA) $(srcdir)/$$i $(peardir)/$$dir); \
++			(set -x;$(INSTALL_DATA) $(srcdir)/$$i $(DESTDIR)$(peardir)/$$dir); \
+ 		done; \
+ 		for i in PEAR.php; do \
+-			(set -x;$(INSTALL_DATA) $$i $(peardir)); \
++			(set -x;$(INSTALL_DATA) $$i $(DESTDIR)$(peardir)); \
+ 		done; \
+ 	else \
+ 		cat $(srcdir)/install-pear.txt; \
+@@ -131,15 +131,15 @@
+ bin_SCRIPTS = phpize php-config pear
+ 
+ install-build:
+-	$(mkinstalldirs) $(phpbuilddir) $(bindir) && \
+-	(cd $(top_srcdir) && cp $(BUILD_FILES) $(phpbuilddir))
++	$(mkinstalldirs) $(DESTDIR)$(phpbuilddir) $(DESTDIR)$(bindir) && \
++	(cd $(top_srcdir) && cp $(BUILD_FILES) $(DESTDIR)$(phpbuilddir))
+ 
+ install-programs:
+ 	for prog in $(bin_SCRIPTS); do \
+-		$(INSTALL) -m 755 scripts/$$prog $(bindir)/$$prog; \
++		$(INSTALL) -m 755 scripts/$$prog $(DESTDIR)$(bindir)/$$prog; \
+ 	done; \
+ 	for prog in phpextdist; do \
+-		$(INSTALL) -m 755 $(srcdir)/scripts/$$prog $(bindir)/$$prog; \
++		$(INSTALL) -m 755 $(srcdir)/scripts/$$prog $(DESTDIR)$(bindir)/$$prog; \
+ 	done
+ 
+ HEADER_DIRS = \
+@@ -155,13 +155,13 @@
+ 
+ install-headers:
+ 	-@for i in $(HEADER_DIRS); do \
+-		paths="$$paths $(phpincludedir)/$$i"; \
++		paths="$$paths $(DESTDIR)$(phpincludedir)/$$i"; \
+ 	done; \
+ 	$(mkinstalldirs) $$paths && \
+ 	echo "creating header file hierarchy" && \
+ 	for i in $(HEADER_DIRS); do \
+-		(cd $(top_srcdir)/$$i && cp -p *.h $(phpincludedir)/$$i; \
+-		cd $(top_builddir)/$$i && cp -p *.h $(phpincludedir)/$$i) 2>/dev/null || true; \
++		(cd $(top_srcdir)/$$i && cp -p *.h $(DESTDIR)$(phpincludedir)/$$i; \
++		cd $(top_builddir)/$$i && cp -p *.h $(DESTDIR)$(phpincludedir)/$$i) 2>/dev/null || true; \
+ 	done
+ 
+ Makefile: Makefile.in $(top_builddir)/config.status
+--- php-4.0.5.orig/sapi/apache/config.m4
++++ php-4.0.5/sapi/apache/config.m4
+@@ -49,7 +49,7 @@
+ 	done
+ 	AC_ADD_INCLUDE($APXS_INCLUDEDIR)
+ 	PHP_SAPI=apache
+-	APACHE_INSTALL="$APXS -i -a -n php4 $SAPI_SHARED"
++	APACHE_INSTALL="install -D -m 644 $SAPI_SHARED \$(DESTDIR)/usr/lib/apache/libphp4.so"
+ 	PHP_BUILD_SHARED
+ 	if test -z "`$APXS -q LD_SHLIB`" || test "`$APXS -q LIBEXECDIR`" = "modules"; then
+ 		PHP_APXS_BROKEN=yes
+--- php-4.0.5.orig/sapi/cgi/config.m4
++++ php-4.0.5/sapi/cgi/config.m4
+@@ -30,7 +30,7 @@
+ fi
+ 
+ if test "$PHP_SAPI" = "cgi" ; then
+-  INSTALL_IT="\$(INSTALL) -m 0755 $SAPI_PROGRAM \$(bindir)/$SAPI_CGI"
++  INSTALL_IT="\$(INSTALL) -m 0755 $SAPI_PROGRAM \$(DESTDIR)\$(bindir)/$SAPI_CGI"
+ fi
+ 
+ AC_MSG_CHECKING(for fhttpd module support)
