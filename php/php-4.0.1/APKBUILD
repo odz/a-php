@@ -1,0 +1,159 @@
+# Contributor: Akira Oda <oda.org@gmail.com>
+# Maintainer: Akira Oda <oda.org@gmail.com>
+pkgname=php
+pkgver=4.0.1
+pkgrel=0
+pkgdesc="The PHP language runtime engine"
+url="http://www.php.net"
+arch="all"
+license="PHP-3.0.0"
+depends=""
+makedepends="
+	apache1.3-dev
+	autoconf2.13
+	bison
+	flex
+	libxml2-dev
+	mariadb-connector-c-dev
+	postgresql-dev
+	zlib-dev
+"
+install=""
+subpackages="
+	$pkgname-common
+	$pkgname-cli
+	$pkgname-apache1.3:apache13
+	$pkgname-dev
+	$pkgname-pear
+"
+source="
+	https://museum.php.net/php4/php-$pkgver.tar.gz
+	number4.tar.gz
+	destdir.patch
+	extern-static.patch
+	libxml2.patch
+	mysql-obsolete.patch
+	mariadb-port.patch
+	va_list.patch
+	zend_optimization.patch
+	zlib.patch
+	php.conf
+"
+builddir="$srcdir/php-$pkgver"
+
+unpack() {
+	cd "$srcdir"
+	tar zxf php-$pkgver.tar.gz
+
+	cd "$builddir"
+	tar zxf "$srcdir/number4.tar.gz"
+}
+
+prepare() {
+	default_prepare
+	autoconf-2.13
+	update_config_sub
+}
+
+_do_build() {
+	local subbuilddir="$1"
+	shift
+
+	mkdir -p "$subbuilddir"
+	(
+		cd "$subbuilddir"
+		env CFLAGS="$CFLAGS -I$builddir -I/usr/include/postgresql/server -fgnu89-inline" "$builddir/configure" \
+			--build=${CBUILD/musl/gnu} \
+			--host=${CHOST/musl/gnu} \
+			--prefix=/usr \
+			--sysconfdir=/etc \
+			--mandir=/usr/share/man \
+			--localstatedir=/var \
+			--disable-debug \
+			--enable-shared=yes \
+			--with-config-file-path=/etc/php \
+			--with-mysql=/usr \
+			--with-pgsql=/usr \
+			--with-zlib=/usr \
+			--enable-bcmath \
+			--with-dom=/usr \
+			$@ \
+			|| return 1
+		make || return 1
+	)
+}
+
+
+build() {
+	cd "$builddir"
+	_do_build "$builddir/build-apache" --with-apxs=/usr/bin/apxs || return 1
+	_do_build "$builddir/build-cli" || return 1
+}
+
+check() {
+	cd "$builddir"
+}
+
+package() {
+	make -j1 -C "$builddir/build-apache" DESTDIR="$pkgdir" install-sapi
+	make -j1 -C "$builddir/build-cli" DESTDIR="$pkgdir" install
+}
+
+common() {
+	cd "$builddir"
+	sed -e 's@^include_path.*@include_path=/usr/lib/php@' php.ini-dist > php.ini
+	install -D -m 644 php.ini "$subpkgdir/etc/php/php.ini"
+}
+
+cli() {
+	depends="$pkgname-common=$pkgver-r$pkgrel"
+
+	mkdir -p "$subpkgdir/usr/bin"
+	mv "$pkgdir/usr/bin/php" "$subpkgdir/usr/bin/php"
+}
+
+apache13() {
+	depends="$pkgname-common=$pkgver-r$pkgrel apache1.3"
+
+	mkdir -p "$subpkgdir/usr/lib/apache"
+	mv "$pkgdir/usr/lib/apache/libphp4.so" "$subpkgdir/usr/lib/apache/libphp4.so"
+
+	install -D -m 644 "$srcdir/php.conf" "$subpkgdir/etc/apache/conf.d/php.conf"
+}
+
+dev() {
+	default_dev
+
+	depends="$pkgname-common=$pkgver-r$pkgrel"
+
+	mkdir -p "$subpkgdir/usr/bin"
+	mv "$pkgdir/usr/bin/phpize" "$subpkgdir/usr/bin/phpize"
+	mv "$pkgdir/usr/bin/phpextdist" "$subpkgdir/usr/bin/phpextdist"
+
+	mkdir -p "$subpkgdir/usr/lib/php"
+	mv "$pkgdir/usr/lib/php/build" "$subpkgdir/usr/lib/php/build"
+}
+
+pear() {
+	depends="$pkgname-common=$pkgver-r$pkgrel"
+
+	mkdir -p "$subpkgdir/usr/lib/php"
+
+	for f in `ls "$pkgdir/usr/lib/php"`; do
+		if [ "$f" != "build" ]; then
+			mv "$pkgdir/usr/lib/php/$f" "$subpkgdir/usr/lib/php/$f"
+		fi
+	done
+}
+
+sha512sums="01a8baac996b5b907a748e1338883144a66a83db6801248953238da138507d83c9f0be56a0f58ca493fdc47f357cbf431f5d34d2a2cf0000920680c6def6f0de  php-4.0.1.tar.gz
+ac189afd7d41f55136c0d8bd93c9c76ab3f2bf3fac87f52fdf822c3e108276b89fb2b46f44a42734d9ac97876db9612777bf05a3393db98846582a8159fc0f64  number4.tar.gz
+96e473a900b5c0a7028ffc23b4fd4e8c17907dc749d05cf3c87290b6bb4995ad16ff28803046d9732fa1e5290052ce604ff1e788506f1b97adca5117885429d0  destdir.patch
+4d024b1cc4239509f56cb8ce6687dbb62983a4dec5db06fe03cf133a83176fea288f9cafecbae662ef8e36b1235e8bdc2040308440642035983193d045398225  extern-static.patch
+58855148d190d8f9f1e977808b02a2d2f0416fa0ad9cdd2b6c5dba7c640ac79a185e4a3b105d694e212fb8064c509279e5c9a20a4c1b39545f38cf30a37213ff  libxml2.patch
+3e86f45da7e1c839168ccb5363f772daa698df835ef3a3f93b6106b1b35b17d4f04667973fb19f86750b176f4bc6890852d483cd37c1b5dd7cd35e46a34b7236  mysql-obsolete.patch
+6742c8270b3018214a23c94cfe3f0b0a93405fbb8070b6d1a6cfb2584303f9433983b5802d7bd990c29a82deb33593c2afb0301e32a1ba2b9c1700e5768f3f43  mariadb-port.patch
+57e62530544d6af6e956fca980e3cde282af641c776e4c31eb7f186ab2aa630960c1c5b0533791e05b937742dc0b8fb7c45cc6efb1b6f5e4eb8eb2a1cf79c8f3  va_list.patch
+120cc751735d4d1921321d26573f3fa56752c4c6a58594603cd1359f82435cae6db3bb80206742f509a7a1ef39489376e0ddfad0900712ef8b73e8b14a2e4677  zend_optimization.patch
+f5e7ace33e8e04b928dbd53f33535651224e40e66fac81acebe0c07852026677b9dc7dc05cb62acd0141cb6f20a62cd1dbeaaa5744b3c8f0c010771f2912e8be  zlib.patch
+1274f41c4c99f28e934db75db509bcbc4f66506cca8fa062e48451107d3eb6cc63b70fe6aa3ef7bb3b14febc474024253c77c740206d7d9e769a58308db96009  php.conf"

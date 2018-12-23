@@ -1,0 +1,41 @@
+--- php-4.0.0.orig/ext/mysql/php_mysql.c
++++ php-4.0.0/ext/mysql/php_mysql.c
+@@ -91,8 +91,10 @@
+ 	PHP_FE(mysql_pconnect,								NULL)
+ 	PHP_FE(mysql_close,									NULL)
+ 	PHP_FE(mysql_select_db,								NULL)
++#if MYSQL_VERSION_ID < 40000
+ 	PHP_FE(mysql_create_db,								NULL)
+ 	PHP_FE(mysql_drop_db,								NULL)
++#endif
+ 	PHP_FE(mysql_query,									NULL)
+ 	PHP_FE(mysql_db_query,								NULL)
+ 	PHP_FE(mysql_list_dbs,								NULL)
+@@ -129,8 +131,10 @@
+ 	PHP_FALIAS(mysql_fieldtype,		mysql_field_type,	NULL)
+ 	PHP_FALIAS(mysql_fieldflags,	mysql_field_flags,	NULL)
+ 	PHP_FALIAS(mysql_selectdb,		mysql_select_db,	NULL)
++#if MYSQL_VERSION_ID < 40000
+ 	PHP_FALIAS(mysql_createdb,		mysql_create_db,	NULL)
+ 	PHP_FALIAS(mysql_dropdb,		mysql_drop_db,		NULL)
++#endif
+ 	PHP_FALIAS(mysql_freeresult,	mysql_free_result,	NULL)
+ 	PHP_FALIAS(mysql_numfields,		mysql_num_fields,	NULL)
+ 	PHP_FALIAS(mysql_numrows,		mysql_num_rows,		NULL)
+@@ -644,7 +648,7 @@
+ }
+ /* }}} */
+ 
+-
++#if MYSQL_VERSION_ID < 40000
+ /* {{{ proto int mysql_create_db(string database_name [, int link_identifier])
+    Create a MySQL database */
+ PHP_FUNCTION(mysql_create_db)
+@@ -724,6 +728,7 @@
+ 	}
+ }
+ /* }}} */
++#endif
+ 
+ 
+ /* {{{ proto int mysql_query(string query [, int link_identifier])

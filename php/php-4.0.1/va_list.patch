@@ -1,0 +1,20 @@
+--- php-4.0.1.orig/main/main.c
++++ php-4.0.1/main/main.c
+@@ -367,7 +367,7 @@
+ 
+ 		/* get include file name */
+ 		if (PG(log_errors) || PG(display_errors) || (!module_initialized)) {
+-			args = orig_args;
++			va_copy(args, orig_args);
+ 			size = vsnprintf(buffer, sizeof(buffer) - 1, format, args);
+ 			va_end(args);
+ 			buffer[sizeof(buffer) - 1] = 0;
+@@ -432,7 +432,7 @@
+ 	if (PG(track_errors)) {
+ 		pval *tmp;
+ 
+-		args = orig_args;
++		va_copy(args, orig_args);
+ 		size = vsnprintf(buffer, sizeof(buffer) - 1, format, args);
+ 		va_end(args);
+ 
