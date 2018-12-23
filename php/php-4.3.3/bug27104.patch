@@ -1,0 +1,142 @@
+--- php-4.3.3.orig/sapi/cli/php_cli.c
++++ php-4.3.3/sapi/cli/php_cli.c
+@@ -91,8 +91,8 @@
+ #define PHP_MODE_STRIP       5
+ #define PHP_MODE_CLI_DIRECT  6
+ 
+-static char *optarg = NULL;
+-static int optind = 1;
++static char *php_optarg = NULL;
++static int php_optind = 1;
+ 
+ static const opt_struct OPTIONS[] = {
+ 	{'a', 0, "interactive"},
+@@ -499,8 +499,8 @@
+ 	zend_file_handle file_handle;
+ /* temporary locals */
+ 	int behavior=PHP_MODE_STANDARD;
+-	int orig_optind=optind;
+-	char *orig_optarg=optarg;
++	int orig_optind=php_optind;
++	char *orig_optarg=php_optarg;
+ 	char *arg_free=NULL, **arg_excp=&arg_free;
+ 	char *script_file=NULL;
+ 	zend_llist global_vars;
+@@ -548,18 +548,18 @@
+ #endif
+ 
+ 
+-	while ((c = php_getopt(argc, argv, OPTIONS, &optarg, &optind, 0))!=-1) {
++	while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 0))!=-1) {
+ 		switch (c) {
+ 		case 'c':
+-			cli_sapi_module.php_ini_path_override = strdup(optarg);
++			cli_sapi_module.php_ini_path_override = strdup(php_optarg);
+ 			break;
+ 		case 'n':
+ 			cli_sapi_module.php_ini_ignore = 1;
+ 			break;
+ 		}
+ 	}
+-	optind = orig_optind;
+-	optarg = orig_optarg;
++	php_optind = orig_optind;
++	php_optarg = orig_optarg;
+ 
+ 	cli_sapi_module.executable_location = argv[0];
+ 
+@@ -596,7 +596,7 @@
+ 			goto out_err;
+ 		}
+ 	
+-		while ((c = php_getopt(argc, argv, OPTIONS, &optarg, &optind, 0)) != -1) {
++		while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 0)) != -1) {
+ 			switch (c) {
+ 
+ 			case 'h': /* help & quit */
+@@ -656,9 +656,9 @@
+ 		INI_HARDCODED("implicit_flush", "1");
+ 		INI_HARDCODED("max_execution_time", "0");
+ 
+-		optind = orig_optind;
+-		optarg = orig_optarg;
+-		while ((c = php_getopt(argc, argv, OPTIONS, &optarg, &optind, 0)) != -1) {
++		php_optind = orig_optind;
++		php_optarg = orig_optarg;
++		while ((c = php_getopt(argc, argv, OPTIONS, &php_optarg, &php_optind, 0)) != -1) {
+ 			switch (c) {
+ 
+ 			case 'a':	/* interactive mode */
+@@ -670,7 +670,7 @@
+ 				/* This is default so NOP */
+ 				break;
+ 			case 'd': /* define ini entries on command line */
+-				define_command_line_ini_entry(optarg);
++				define_command_line_ini_entry(php_optarg);
+ 				break;
+ 
+ 			case 'e': /* enable extended info output */
+@@ -682,12 +682,12 @@
+ 					param_error = "Either execute direct code or use a file.\n";
+ 					break;
+ 				}
+-				script_file = optarg;
++				script_file = php_optarg;
+ 				break;
+ 
+ 			case 'g': /* define global variables on command line */
+ 				{
+-					char *arg = estrdup(optarg);
++					char *arg = estrdup(php_optarg);
+ 
+ 					zend_llist_add_element(&global_vars, &arg);
+ 				}
+@@ -720,7 +720,7 @@
+ 					break;
+ 				}
+ 				behavior=PHP_MODE_CLI_DIRECT;
+-				exec_direct=optarg;
++				exec_direct=php_optarg;
+ 				break;
+ 
+ 			case 's': /* generate highlighted HTML from source */
+@@ -740,7 +740,7 @@
+ 				break;
+ 
+ 			case 'z': /* load extension file */
+-				zend_load_extension(optarg);
++				zend_load_extension(php_optarg);
+ 				break;
+ 			case 'H':
+ 				hide_argv = 1;
+@@ -760,9 +760,9 @@
+ 		CG(interactive) = interactive;
+ 
+ 		/* only set script_file if not set already and not in direct mode and not at end of parameter list */
+-		if (argc > optind && !script_file && behavior!=PHP_MODE_CLI_DIRECT && strcmp(argv[optind-1],"--")) {
+-			script_file=argv[optind];
+-			optind++;
++		if (argc > php_optind && !script_file && behavior!=PHP_MODE_CLI_DIRECT && strcmp(argv[php_optind-1],"--")) {
++			script_file=argv[php_optind];
++			php_optind++;
+ 		}
+ 		if (script_file) {
+ 			if (cli_seek_file_begin(&file_handle, script_file, &lineno TSRMLS_CC) != SUCCESS) {
+@@ -781,12 +781,12 @@
+ 
+ 		/* before registering argv to module exchange the *new* argv[0] */
+ 		/* we can achieve this without allocating more memory */
+-		SG(request_info).argc=argc-optind+1;
+-		arg_excp = argv+optind-1;
+-		arg_free = argv[optind-1];
++		SG(request_info).argc=argc-php_optind+1;
++		arg_excp = argv+php_optind-1;
++		arg_free = argv[php_optind-1];
+ 		SG(request_info).path_translated = file_handle.filename;
+-		argv[optind-1] = file_handle.filename;
+-		SG(request_info).argv=argv+optind-1;
++		argv[php_optind-1] = file_handle.filename;
++		SG(request_info).argv=argv+php_optind-1;
+ 
+ 		if (php_request_startup(TSRMLS_C)==FAILURE) {
+ 			*arg_excp = arg_free;
