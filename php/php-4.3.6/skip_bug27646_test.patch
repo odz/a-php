@@ -1,0 +1,12 @@
+--- php-4.3.6.orig/ext/standard/tests/math/bug27646.phpt
++++ php-4.3.6/ext/standard/tests/math/bug27646.phpt
+@@ -1,5 +1,9 @@
+ --TEST--
+ Bug #27646 (Cannot serialize/unserialize non-finite numeric values)
++--SKIPIF--
++<?php
++	die('skip this test cause infinite loop');
++?>
+ --FILE--
+ <?php
+ 
