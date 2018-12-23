@@ -2,12 +2,12 @@
 # Maintainer:
 pkgname=apache1.3
 pkgver=1.3.42
-pkgrel=0
+pkgrel=1
 pkgdesc="A high performance Unix-based HTTP server"
 url="http://httpd.apache.org/"
 arch="all"
 license="Apache-2.0"
-depends="perl"
+depends=""
 makedepends="perl"
 install=""
 subpackages="$pkgname-dev $pkgname-doc"
@@ -42,6 +42,7 @@ package() {
 	cd "$builddir"
         make -j1 root="$pkgdir" install || return 1
         install -d "$pkgdir/etc/apache/conf.d"
+	rm "$pkgdir/usr/bin/dbmmanage"
 }
 
 dev() {
